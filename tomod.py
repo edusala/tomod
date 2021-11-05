@@ -1,12 +1,32 @@
+# 2021-11-05
+# SA
+# licenc: MIT
 
-# importing openpyxl module
+
+###############################################
+#
+# Beállítások
+#
+
+in_file_name = 'minta.xlsx'
+out_file_name = 'minta.csv'
+
+# Az első sor ahol tanulók vannak a bemeneti fájlban
+first_row = 1
+
+# Itt beállítható milyen legyen egy sor:
+#out_line_format = 'id, "first_name", "second_name", "user_name", om, "phone", "email"'
+out_line_format = 'id, first_name, second_name, user_name, omid, phone, email'
+
+#
+###############################################
+
+
 import openpyxl
+import unidecode
  
-# Give the location of the file
-path = "minta.xlsx"
- 
-# workbook object is created
-wb_obj = openpyxl.load_workbook(path)
+
+wb_obj = openpyxl.load_workbook(in_file_name)
 sheet_obj = wb_obj.active
 max_col = sheet_obj.max_column
 max_row = sheet_obj.max_row
@@ -18,24 +38,50 @@ def getFirstName(name):
 def getSecondName(name):    
     (secondName,firstName) = name.split()
     return secondName
+
 def getUserName(name):    
     (secondName,firstName) = name.split()
-    return secondName + "." + firstName
+    tmpName = secondName + "." + firstName
+    userName = tmpName.lower()
+    return unaccent(userName)
 
-def convert(name):    
-    (secondName,firstName) = name.split()
-    return secondName + "." + firstName
+def unaccent(name):    
+    unaccented_name = unidecode.unidecode(name)
+    return unaccented_name
 
-# Loop will print all columns name
-for i in range(1, max_row + 1):
-    for j in range(1, max_col + 1):
-        cell_obj = sheet_obj.cell(row = i, column = j)
-        if j == 2:
-            fullName = cell_obj.value
-            getFirstName(fullName)
-            getSecondName(fullName)
-            print(getUserName(fullName))
+f = open(out_file_name, 'w')
 
+for i in range(first_row, max_row + 1):
+    id = sheet_obj.cell(row = i, column = 1).value
+    full_name = sheet_obj.cell(row = i, column = 2).value
+    om = sheet_obj.cell(row = i, column = 3).value
+    phone = sheet_obj.cell(row = i, column = 4).value
+    email = sheet_obj.cell(row = i, column = 5).value
 
+    first_name = getFirstName(full_name)
+    second_name = getSecondName(full_name)
+    user_name = getUserName(full_name)
+    
+    line = out_line_format \
+    .replace('id', str(id)) \
+    .replace('first_name', first_name) \
+    .replace('second_name', second_name) \
+    .replace('user_name', user_name) \
+    .replace('om', str(om)) \
+    .replace('phone', str(phone)) \
+    .replace('email', email)
 
+    print(line)
+
+    line = (
+            str(id) + "," + 
+            first_name + "," +
+            second_name + "," +
+            user_name + ", " +
+            str(om) + ", " +
+            str(phone) + ", " +
+            email + "\n"
+        )
+    f.write(line)
+f.close()
 
