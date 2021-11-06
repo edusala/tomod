@@ -2,6 +2,10 @@
 # SA
 # licenc: MIT
 
+# Függőségek
+# Telepítse az openpyxl és a unidecode modulokat:
+#    pip3 install openpyxl
+#    pip3 install unidecode
 
 ###############################################
 #
